@@ -1,0 +1,10 @@
+---
+- hosts: all
+
+  tasks:
+  - name: install C++
+    become: true
+    apt: name={{ item }} update_cache=true state=present
+    with_items:
+      - g++
+      - gdb
