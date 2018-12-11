@@ -2,9 +2,58 @@
 - hosts: all
 
   tasks:
+  - name: include vars
+    include_vars:
+      dir: vars
+
   - name: install C++
     become: true
     apt: name={{ item }} update_cache=true state=present
     with_items:
       - g++
       - gdb
+
+  - name: ensure pip is installed
+    become: true
+    package: name="python3-pip" state=present
+
+  - name: install db prereqs
+    become: true
+    become_method: sudo
+    apt: name={{ item }} state=latest
+    with_items:
+      - libpq-dev
+      - python-psycopg2
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+    tags:
+      - packages
+
+  - name: install psycopg2
+    pip: name=psycopg2-binary
+    become: yes
+
+  - name: copy db table creation script
+    template:
+      src: create_table.sql.j2
+      dest: /tmp/create_table.sql
+
+  - name: install db
+    become: true
+    become_user: postgres
+    postgresql_db:
+      name: acme
+      login_user: postgres
+      login_password: "{{ pgpass }}"
+
+  - name: run sql file
+    become: true
+    become_user: postgres
+    shell: "PGPASSWORD={{ pgpass }} psql -v ON_ERROR_STOP=1 -U postgres -d acme -f /tmp/create_table.sql"
+    register: cmd_out
+    ignore_errors: false
+
+  - name: output
+    debug:
+      msg: "RC: {{ cmd_out.rc }}"
