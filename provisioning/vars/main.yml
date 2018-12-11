@@ -1,0 +1,4 @@
+---
+db_name: acme
+db_user: postgres
+pgpass: jumping
