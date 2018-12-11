@@ -1,7 +1,15 @@
 # Jibblrr
 
-**TODO: Add description**
+### Ansible and Vagrant
+
+Requires:
+
+* VirtualBox
+* Vagrant
+* Ansible
 
 ## Installation
 
-TBD
+1. Clone the repo
+1. `cd <repo>`
+1. `vagrant up`
